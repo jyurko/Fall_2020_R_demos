@@ -1,0 +1,717 @@
+---
+title: "Fall 2020 semester R Demos"
+subtitle: "Simple introduction to R programming, dplyr, and ggplot2"
+author: "Dr. Joseph P. Yurko"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This document provides a very quick introduction to the `R` programming language. For more details and discussion please see the [R for Data Science](https://r4ds.had.co.nz/) book. For quick syntax look-ups, I use the the [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/) on a regular basis.  
+
+## Basic syntax
+
+### Variables
+
+The comment character in `R` is the hashtag symbol: `#`.  
+
+Variables can be assigned with either the `=` or `<-` operators. The most "`R`" way is with the assignment operator, `<-`, which is sometimes read as "gets". Thus, the following the line of code:  
+
+```{r, show_gets}
+x <- 2
+```
+
+can be read as `x` "gets" (assigned) `2`.  
+
+`R` allows `.` and `_` within variable names. Create several different variables storing numeric data types:  
+
+```{r, make_few_vars}
+x <- 1
+
+x.int <- 2
+
+x.num <- 2.2
+
+x_num <- 2.3
+```
+
+Important: `R` **is** case sensitive! Let's demonstrate by assigning `X` the value of `4` and compare with the `x` variable. Notice that when checking if two variables are equal we need to use double equals, `==`, instead of a single equals. **Why do you think that is the case?**  
+
+```{r}
+X <- 4
+
+x == X ### check if the two variables are EQUAL
+```
+
+### Data types
+
+Variables do not have to be just numeric values. Some other basic, yet important, data types are the `"character"` and the `"logical"` (boolean) classes. Creating or assigning variables for those data types is simple. The code chunk below creates three different `"character"` variables and then prints the last one to the screen.  
+
+```{r, make_strings}
+x_string <- "yes"
+
+var_string <- "no"
+
+long_string <- "Here is a short sentence."
+
+long_string
+```
+
+Likewise to create a `"logical"`:  
+
+```{r, make_logical}
+x_bool <- TRUE
+
+x_false_bool <- FALSE
+
+x_bool
+```
+
+A variable's data type can be checked by calling the `class()` function. To check the variable's data type, pass the variable as the input argument using the following format: `class(<variable>)`. Pass several of the variables we have already created into the `class()` function below.  
+
+```{r, check_data_type}
+class(x)
+
+class(X)
+
+class(long_string)
+
+class(x_bool)
+```
+
+### Vectors
+
+In `R`, a vector is created with the `c()` function. The "c" stands for "combine" in that we will "combine" the user supplied arguments into a vector. The code chunk below combines the integers 1 through 4.  
+
+```{r, make_first_vector}
+x_vec <- c(1, 2, 3, 4)
+```
+
+Vectors of numeric and integer values can be created in ways other than calling `c()`. For example, if we want a sequential series of integers we can use the `:` operator:  
+
+```{r, seq_short_cut}
+x_vec_2 <- 1:4
+
+class(x_vec_2)
+
+x_vec_2
+```
+
+Vectors can store other data types as well, but all elements of a vector **must** be of the same data type. For example, we can have a vector of `"character"`s:  
+
+```{r, make_char_vector}
+char_vec <- c("yes", "no", "maybe", "short phrase")
+```
+
+Or a vector of `"logical"`s:  
+
+```{r, make_bool_vector}
+bool_vec <- c(TRUE, FALSE, FALSE, TRUE)
+```
+
+The data type associated with the vector depends on the data type of the elements the vector contains. Thus `x_vec` is an `"integer"` class, `char_vec` is a `"character"`, and `bool_vec` is a `"logical"` class. The code chunk below calls the `class()` function on each of the objects. The result of the `class()` calls are combined into a vector which is printed to screen to show the data types are as was expected.  
+
+```{r}
+c( class(x_vec), class(char_vec), class(bool_vec) )
+```
+
+You can even name the elements of a vector. Naming can be performed at the assignment of the variable, or after the fact. When giving the elements names at the assignment of the vector use the `=` in the format `<element name> = <element value>`, as shown in the code chunk below. Pay attention to which words are in quotes and which are unquoted.  
+
+```{r, make_vector_names}
+a_named_vec <- c(favorite_author = "Tolkien", favorite_book = "Lord of the Rings")
+
+a_named_vec
+```
+
+To assign element names after the fact, we will need to assign a `"character"` vector to the result of the `names()` function. This may sound confusing, but it's quite straightforward to implement, as shown below.  
+
+```{r, make_vector_names_b}
+b_named_vec <- c("Tolkien", "Lord of the Rings")
+
+b_named_vec ### print unnamed vector to the screen
+
+names(b_named_vec) <- c("favorite_author", "favorite_book") ### assign the names
+
+b_named_vec ### print named vector to the screen
+```
+
+We can access individual elements within a vector by using `<variable>[<index>]`. For example to access the first element in `a_named_vec`:  
+
+```{r, vec_subset_1}
+a_named_vec[1]
+```
+
+Or the third element in `x_vec_2`:  
+
+```{r, vec_subset_2}
+x_vec_2[3]
+```
+
+We can extend this usage beyond single elements to subsetting or *slicing* the vector by passing in a vector of indices within the `[]`. To access the second through fourth elements in `x_vec`:  
+
+```{r, vec_subset_3}
+x_vec[2:4]
+```
+
+Or to grab the first, third, and fourth elements in `char_vec`:  
+
+```{r, vec_subset_4}
+char_vec[c(1, 3, 4)]
+```
+
+Subsetting can be further extended to *conditional* subsetting by returning elements that satisfy a condition. Let's return all elements of `x_vec` that have values greater than the value stored in the variable `x_num` (remember that `x_num = ` `r x_num`). To do so we must pass in the conditional statement to the `[]`. So let's first see what happens when we apply the conditional test on the vector `x_vec`:
+
+```{r, vec_subset_5}
+x_vec > x_num
+```
+
+A vector is returned, with the same length as `x_vec`, but the elements are all `"logical"`s. The last two elements of `x_vec` are greater than `x_num` and so the returned `"logical"` vector contains `r TRUE` results, while the first two elements contain `r FALSE` results. By passing in the `"logical"` vector into the `[]` we can return just the portion of `x_vec` that satisfies the condition:  
+
+```{r, vec_subset_6}
+x_vec[x_vec > x_num]
+```
+
+Conditional subsetting can also be applied to vectors of `"character"`s and `"logicals"`. To show this, `char_vec_2` is created in the code chunk below consisting of several types of words. That vector is subsetted to return all elements that correspond to the word `"dog"`.
+
+```{r, vec_subset_7}
+char_vec_2 <- c("dog", "cat", "fish", "dog", "cat", "mouse", "dog")
+
+char_vec_2[char_vec_2 == "dog"]
+```
+
+If we wanted to return all elements that do not correspond to `"dog"`, we can use the `!=` operator:  
+
+```{r, vec_subset_8}
+char_vec_2[char_vec_2 != "dog"]
+```
+
+
+In the above examples we are either matching or not matching a single condition. If we want to match multiple conditions we need to use the `%in%` operator. For example, to return all elements that correspond to either `"dog"` or `"cat"`:  
+
+```{r, vec_subset_9}
+char_vec_2[char_vec_2 %in% c("dog", "cat")]
+```
+
+Returning all elements that do not match multiple conditions is not a straightforward extension of the `!=` operator. We have to put the `!` symbol before the variable name within `[]` instead of just in front of the `%in%` operator. So to return all elements that are not `"dog"` or `"cat"`:  
+
+```{r, vec_subset_10}
+char_vec_2[!char_vec_2 %in% c("dog", "cat")]
+```
+
+### Lists
+
+As mentioned previously, vectors store homogenous information - all elements must be the same data type. In order to store heterogenous information we need to use lists (analogous to the Python dictionary). We create a list with the `list()` call and can name each element in the list just as we did when we named the elements in a vector.  
+
+We will create a list of 4 objects. Each object will be a vector, but the vectors will be different lengths. Two of the vectors consist of `"numeric"` elements, while the other two contain `"character"` elements. `variable_3` is a vector of 5 numeric values between -1 and +1 (inclusive). The vector is created with the `seq()` which has as its first input argument the lower bound or `from=` argument. The second argument is the upper bound or `to=` argument. The third argument specifies how increment between those bounds. In the case of `variable_3` below, we specify that the vector must have a length of 5. The `seq()` function then creates 5 evenly spaced points between the from and to bounds.  
+
+```{r, make_list}
+my_list <- list(variable_1 = 1:4,
+                variable_2 = c("yes", "no", "maybe"),
+                variable_3 = seq(-1, 1, length.out = 5),
+                variable_4 = c("hello", "goodbye"))
+```
+
+The code chunk below prints the list to the screen. Notice the first variable assigned within the list `variable_1` is displayed with a `$` at the start of the word. The line immediately beneath that gives the contents of the `variable_1` vector. The same display style exists for the other 3 variables contained within the list.  
+
+```{r, print_list}
+my_list
+```
+
+The `$` before the variable name gives one approach for accessing variables within a list. To check, we will call the `class()` function on the list itself and on some of the variables directly, as accessed via the `$` operator. As shown in the code chunk below, accessing the `my_list$variable_1` directly gives a different data type than the data type on the `my_list` list variable.  
+
+```{r, check_list_class}
+class(my_list)
+
+class(my_list$variable_1)
+
+class(my_list$variable_2)
+```
+
+As an additional check, we will use the `length()` function to count the number of elements in the list and compare to the number of elements in two of its variables accessed via the `$` operator.  
+
+```{r, check_list_length}
+length(my_list)
+
+length(my_list$variable_3)
+
+length(my_list$variable_4)
+```
+
+There are several other approaches for accessing variables within a list in addition to the `$` operator. These approaches offer more programmatic access and require using the `[[]]`. Two brackets are needed because a single bracket will keep the result as a list, rather than "dropping down" to the data type of the variable of interest. We can select a variable by passing in the variable index, similar to how we subsetted a vector. The syntax is `<list>[[<index>]]`. The code chunk below extracts the first and third variables from the list with this approach.  
+
+```{r, list_subset_1}
+my_list[[1]]
+```
+
+```{r, list_subset_2}
+my_list[[3]]
+```
+
+Another approach is to use the variable's name as a `"character"` within the `[[]]` instead of the index. Thus, the syntax is `<list>[[<variable>]]`. Accessing the first and third variables from `my_list` with this format is then accomplished as:  
+
+```{r, list_subset_3}
+my_list[["variable_1"]]
+
+my_list[["variable_3"]]
+```
+
+When working with lists, if you are confused about the contents you can call the `str()` function to print out the "structure" of the object:  
+
+```{r, list_str}
+str(my_list)
+```
+
+### Data frames
+
+A special type of list is the `data.frame` which is intended for rectangular or tabular data (such as a spreadsheet in Excel). The `data.frame` is the workhorse in `R` for data storage. As with a standard list, the variables within a `data.frame` do not have to be of the same data type. However, all variables must be the same length. This provides the tabular like format when viewing variables as columns and observations as rows.  
+
+A `data.frame` is created in the code chunk below. After assignment, the `data.frame` is printed to the screen to show the tabular like structure.  
+
+```{r, make_data_frame}
+my_df <- data.frame(x_1 = 1:4,
+                    x_2 = c("yes", "no", "hello", "maybe"),
+                    x_3 = seq(-1, 1, length.out = 4),
+                    x_4 = c(TRUE, TRUE, FALSE, TRUE))
+
+my_df
+```
+
+The `str()` function also works with `data.frame`s:  
+
+```{r, data_frame_str}
+str(my_df)
+```
+
+Because a `data.frame` is a specialized list, we can use the `$` operator to access individual variables within a `data.frame`. The code chunk checks the data type associated with the `x_1` and `x_4` variables via the `$` operator.  
+
+```{r, check_data_frame_class}
+class(my_df$x_1)
+
+class(my_df$x_4)
+```
+
+We can access individual elements within variables contained in a `data.frame` with `[]`. We saw how to do that already with vectors, but vectors are 1D. Since `data.frame`s are tabular we can consider them to be 2D objects. Thus, when using indices to subset a `data.frame` we must provide a row index and a column index in the following format: `<data frame>[<row index>, <column index>]`.  
+
+To access the 2nd element within variable `x_1` we pass in `<row index> = 2` and `<column index> = 1` since `x_1` is the first variable contained within the `data.frame` object `my_df`:  
+
+```{r, df_subset_1}
+my_df[2, 1]
+```
+
+To access more rows from a single variable, we simply pass in a vector of row indices like we did when slicing a vector. For example, to subset the 1st, 3rd and 4th rows for the `x_1` variable:
+
+```{r, df_subset_2}
+my_df[c(1, 3, 4), 1]
+```
+
+Accessing all rows of a variable is a little confusing. We use the following syntax `<data frame>[, <column index>]`. We essentially leave the `<row index>` "blank", but we **must** include the comma to tell `R` the next characters correspond to the column. Let's see how this works for variables `x_1` and `x_4`:  
+
+```{r, df_subset_3}
+my_df[, 1]
+
+my_df[, 4]
+```
+
+So far, we've been subsetting a single variable within a `data.frame`. But, we can also apply the same style to selecting multiple variables at the same time. Instead of passing in a single value to the `<column index>`, we will now pass in a vector. So, to select the `x_1` and `x_3` variables together:  
+
+```{r, df_subset_4}
+my_df[, c(1, 3)]
+```
+
+Notice that the result printed to the screen "looks" different when we subset multiple variables at once compared with selecting a single variable. The reason is because `R` by default "drops down" a single variable from a `data.frame` to a vector. (We can prevent that from occuring, but we will discuss that another time.) To confirm that such is the case, let's call the `class()` function on the results of selecting just `x_1` and when we selected `x_1` with `x_3`:  
+
+```{r, df_subset_5}
+class(my_df[, 1])
+
+class(my_df[, c(1, 3)])
+```
+
+Although it is straightforward to select variables (columns) based on their `<column index>`, we would need to remember the complete column ordering of all variables. If we have hundreds to thousands of columns this would be very difficult to do. To overcome this, we can use the variable name directly to select specific columns. I personally prefer this type of approach because it safe guards us against columns being reordered by mistake and then breaking all subsequent analysis.  
+
+The syntax for selecting columns based on their names requires replacing the `<column index>` with the `<column name>`. For example, to select the `x_1` variable:  
+
+```{r, df_subset_6}
+my_df[, "x_1"]
+```
+
+And likewise to select `x_1` with `x_3`:  
+
+```{r, df_subset_7}
+my_df[, c("x_1", "x_3")]
+```
+
+### Example dataset
+
+Some classic datasets come preloaded in `R`. One of the most common for introductory data science/machine learning applications is the `iris` dataset. We can practice the functions and subsetting approaches discussed above on `iris`.  
+
+For example, pass the `iris` dataset into the `str()` function to get an overview of its structure:  
+
+```{r, iris_1}
+str(iris)
+```
+
+The code chunk below shows how to select the first 11 rows of the `Sepal.Length` variable:  
+
+```{r, iris_2}
+iris[1:11, "Sepal.Length"]
+```
+
+The code chunk below extracts the first 3 rows of the variables starting with the word `"Petal"`:  
+
+```{r, iris_3}
+iris[1:3, c("Petal.Length", "Petal.Width")]
+```
+
+**Go ahead and practice manipulating the `iris` dataset on your own.** We saw how to conditionally subset a vector earlier in this document. Try subsetting `iris` such that you keep only those rows that have `Species == "setosa"`. Then keep only those rows that have `Sepal.Length` greater than 5.8.  
+
+## Packages
+
+So far, all code we have used has been from "base" `R`. We have not had to load in any additional libraries or packages. Although "base" `R` provides many useful statistical functions, the strength of `R` really comes from the numerous user contributed packages. There are thousands of packages available on the [CRAN](https://cran.r-project.org/). It might seem daunting at first to learn which package is most appropriate to use, but as you get more accustomed to `R` you'll find those that you feel most comfortable using.  
+
+### tidyverse
+
+Although we went through how to subset and slice objects with "base" `R`, in truth I rarely use that functionality. Instead, I work almost entirely within the `tidyverse` suite of packages. [tidyverse](https://www.tidyverse.org/) consists of a collection of packages for importing, wrangling and manipulating, programming, and modeling data. The [R for Data Science](https://r4ds.had.co.nz/) book provides a complete introduction to the philosophy and style of the `tidyverse`.  
+
+Before we can use a package, we must first download and install it. RStudio provides a GUI to help with package installation within the "Packages" tab within the file manager portion of the IDE. Alternatively, we can use the `install.packages()` function. Just note that depending on your internet connection installing `tidyverse` might take awhile. If you have already installed `tidyverse` you would not need to run the code chunk below.  
+
+```{r, eval=FALSE}
+install.packages("tidyverse")
+```
+
+We won't go through the complete `tidyverse` just yet. We'll start with `dplyr` and `ggplot2`. `dplyr` is the primary `tidyverse` package for manipulating, wrangling, and transforming data. `ggplot2` is a data visualization package which follows the "grammar of graphics" structured approach for building statistical graphics.  
+
+We only have to download and install a package once. But, to make use of that package we have to load it into our session using the `library()` function. So, let's load in both `dplyr` and `ggplot2`.  
+
+```{r, load_packages, warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+```
+
+### Pipe
+
+When we load in `dplyr` we bring in a very useful **forward-pipe operator**, `%>%`, from the `magrittr` package. With the pipe operator we can transform functional operations into a pipeline or workflow that reads left-to-right, rather than "inside-out". Consider calling the `names()` function on the `iris` dataset. The conventional approach is to type `iris` as the input argument to `names()`:  
+
+```{r, show_pipe_1}
+names(iris)
+```
+
+But, with the pipe operator, we use the syntax: `<object> %>% <function>`. The pipe operator takes care of passing the data object as the first input argument to the function. Calling the `name()` function with the pipe operator is:  
+
+```{r, show_pipe_2}
+iris %>% names()
+```
+
+The strength of this style of coding comes from chaining together sequential operations into a pipeline. For example, let's return the length of the returned `"character"` vector for the names of the columns in the `iris` dataset. The conventional "inside-out" syntax is:  
+
+```{r, show_pipe_3}
+length(names(iris))
+```
+
+With the conventional approach, the last operation is the first function name we read length-to-right. We have to work our way inward to get to the start of the operational chains, which in this case is the `iris` dataset itself. Contrast that with the pipe operator based workflow:  
+
+```{r, show_pipe_4}
+iris %>% names() %>% length()
+```
+
+As you can imagine, as our data manipulation workflow grows, the conventional "inside-out" format can become quite complex and potentially confusing and difficult to debug. The pipe operator based approach is modular, which I find helps to write cleaner code that is easier to interactively test and debug. As we add new steps, we just add them to the end of the existing pipeline. This modular approach streamlines initial exploration of a dataset and is a style I rely heavily on.  
+
+### tibble
+
+As you start to get used to the `tidyverse` you might start to notice slight differences in `data.frame`s relative to "base" `R`. That's because within the `tidyverse`, the `data.frame` has been modified to a newer data type referred to as the `tibble`. Some of the changes are just cosmetic, but I have come to prefer `tibble`s over `data.frame`s. To see a simple difference between the two, we will convert the `my_df` `data.frame` into a `tibble` with the `tbl_df()` function from `dplyr`.  
+
+First, print to screen the original `my_df` object:  
+
+```{r, show_tibble_1}
+my_df
+```
+
+Now, pipe `my_df` into the `tbl_df()` function:  
+
+```{r, show_tibble_2}
+my_df %>% tbl_df()
+```
+
+Notice that the `tibble` version of `my_df` outputs to the screen additional information than the standard `data.frame`. We can see the data type associated with each variable, and we are explicitly told the dimensions of the object.  
+
+This change in printed display is especially useful when first exploring a large dataset. If you print a "base" `R` `data.frame` to the screen, all rows and columns are displayed (up to the display limit). With dozens and dozens of columns and thousands of rows, such an action is overkill and a little pointless. Sometimes I just want to "see" the first few rows of a dataset. `tibble`s correct this by displaying just the first 10 rows by default, and display only enough variables that easily fit to the screen. Such a difference is purely cosmetic, but I like it none the less.  
+
+To showcase this functionality, print to screen the `iris` dataset after piping it into the `tbl_df()` function.  
+```{r, show_tibble_3}
+iris %>% tbl_df()
+```
+
+There are additional differences between `data.frame`s and `tibble`s, but that's all we need to consider for now.  
+
+The `tidyverse` has other alternatives to "base" `R` operations. Previously, we had used the `str()` function to examine the structure of an object. The `tidyverse` alternative to `str()` is `glimpse()`. It's up to you which version you prefer, but I usually use `glimpse()` over `str()`. The `glimpse()` output on the `my_df` object is:  
+
+```{r, show_tibble_4}
+my_df %>% tbl_df() %>% glimpse()
+```
+
+### dplyr
+
+`dplyr` provides the core `tidyverse` data manipulation, wrangling, and transformation capabilities. `dplyr` is based on a series of action verbs to explicitly state the operation we are performing. Understanding precisely what that means is easiest to see with an example. We had previously seen how to select columns from `my_df` with a `<column index>` and a `<column name>`. To perform the same operations with `dplyr` we will use the `select()` verb. Furthermore, `dplyr` allows what is referred to as "non-standard evaluation" of variables in that we do **not** have to put variable names within quotes within the call to `select()`. To see this in action, select `x_1` and `x_3`, from the `tibble` version of `my_df`:  
+
+```{r, show_dplyr_1}
+my_df %>% 
+  tbl_df() %>% 
+  select(x_1, x_3)
+```
+
+Non-standard evaluation is especially useful when interactively exploring a dataset. It saves time to not have to put quotes around variable names. Plus, if you're using RStudio as your IDE, you can tab-complete variable names within the action verbs. Tab-complete saves time and cuts down on typos, and so is a practice I highly encourage you to become comfortable with.  
+
+As great as non-standard evaluation is, it is challenging to programmatically performing operations. To support such efforts, the `select()` verb also accepts both `<column index>` values and `<column name>` strings. Selecting `x_1` and `x_3` using their column indices is performed as:  
+
+```{r, show_dplyr_2}
+my_df %>% 
+  tbl_df() %>% 
+  select(c(1, 3))
+```
+
+And likewise using the column names as strings:  
+
+```{r, show_dplyr_3}
+my_df %>% 
+  tbl_df() %>% 
+  select(c("x_1", "x_3"))
+```
+
+While `select()` subsets the columns, the action verbs `slice()` and `filter()` subset the rows. `slice()` requires passing in the row indices of interest. Thus, the syntax to return the 1st, 2nd, and 4th rows from `my_df` with `slice()` is:  
+
+```{r, show_dplyr_4, warning=FALSE, message=FALSE}
+my_df %>% 
+  tbl_df() %>% 
+  slice(c(1, 2, 4))
+```
+
+Conditional subsetting is performed by the `filter()` action verb. It is important to note that when executing `filter()` you are **removing** all rows that do **not** meet the condition. So in some sense you are filtering the rows that pass the conditional test *into* the new dataset. To return the same set of rows in the `slice()` example code chunk above, we would want to keep all rows that have `x_4 ==` `r TRUE`.  The code chunk below shows the syntax to accomplish that goal.  
+
+```{r, show_dplyr_5}
+my_df %>% 
+  tbl_df() %>% 
+  filter(x_4 == TRUE)
+```
+
+There are a few ways to apply additional filtering steps as **AND** operations, such that we are returning all rows that satisfy condition 1 **AND** condition 2. For example, we may want to keep only those rows that have `x_4 ==` `r TRUE` **AND** `x_3 > 0`. The first option to perform both steps is pipe the result of the first filter operation into the second operation:  
+
+```{r, show_dplyr_6}
+my_df %>% 
+  tbl_df() %>% 
+  filter(x_4 == TRUE) %>% 
+  filter(x_3 > 0)
+```
+
+The next option is to separate the filter steps within the `filter()` call with a comma:  
+
+```{r, show_dplyr_7}
+my_df %>% 
+  tbl_df() %>% 
+  filter(x_4 == TRUE,
+         x_3 > 0)
+```
+
+The most formal option however, is to use an `&` symbol:  
+
+```{r, show_dplyr_8}
+my_df %>% 
+  tbl_df() %>% 
+  filter(x_4 == TRUE &
+           x_3 > 0)
+```
+
+It is important to note that `R` does not override the `my_df` after performing the filtering actions. That is why we could start the previous code chunk with the original `my_df` object even though we had demonstrated the filtering operation in earlier code chunks. If we want the results of our `dplyr` action verbs to "hold" or "take effect" we need to assign the result of the operations to a variable. If we would assign the result to `my_df` itself, the `my_df` object would be modified. For now, let's assign the result of the previous code chunk to the object `my_df_b`:  
+
+```{r, show_dplyr_9}
+my_df_b <- my_df %>% 
+  tbl_df() %>% 
+  filter(x_4 == TRUE &
+           x_3 > 0)
+```
+
+Note that the code chunk above did **not** display an output to the screen. We did not print the `my_df_b` object. We assigned it as the end result of the workflow of actions.  
+
+There are many other action verbs within `dplyr`, and still yet more data transformation functions within other `tidyverse` packages. We will use many of those capabilities throughout the semester. For now though, **practice** using the `select()` and `filter()` verbs on the `iris` dataset. Repeat the operations you performed previously in "base" `R`, but now within the `tidyverse`.  
+
+### ggplot2
+
+`ggplot2` is a system of building up statistical graphics layer by layer, and is based on the Grammar of Graphics. When creating a `ggplot2` figure, we must "map" all visual aspects of the figure (called *aesthetics*) to a variable. We will therefore be following a formal structure and process to create a figure. The Grammar of Graphics framework really gets you thinking of the type of information you want to display graphically. Although that process may seem tedious at first, it aids in reproducibility of your work by making each aspect of a figure explicitly known.  
+
+We will introduce the basic layers of a `ggplot2` graphic with the `iris` dataset. We will also continue to use the pipe operator to pass the dataset into the primary or parent `ggplot()` function call. **HOWEVER** it is very important to note, once we have made the `ggplot()` call, all layers within the graphic **must** be separated by `+` rather than the `%>%`. This will seem confusing, but it has to do with the fact that `ggplot2` was created before the pipe operator.  
+
+Let's start out by plotting a simple histogram of the `Sepal.Length` variable. If we pipe `iris` into the `ggplot()` function call...  
+
+```{r, show_ggplot_1}
+iris %>% ggplot()
+```
+
+**We get a blank result!** In `ggplot2`, we have to explicitly "map" each aesthetic. An aesthetic is any piece of information we are graphically displaying, including the variables to plot on the `x` and `y` axes. In our previous call to `ggplot()`, the only thing the graphic "knows" is that it is associated with `iris`. We have not set the aesthetics. To do so, we need to use the `mapping` argument and the `aes()` function. For our example histogram, we want to display `Sepal.Length` on the x-axis. The code chunk below shows how to set the x-axis aesthetic:  
+
+```{r, show_ggplot_2}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length))
+```
+
+As shown above, we now see the plot area, grid lines, the variable name printed on the x-axis, and tick marks. To check the numbers displayed are associated with the range of that variable, we call the `summary()` function which prints out useful summary statistics associated with each column in a `data.frame` (or `tibble`):  
+
+```{r, show_ggplot_3}
+iris %>% summary()
+```
+
+As shown by the `Min.` and `Max.` printed values for `Sepal.Length`, the tick marks are representative of the observations within `iris`. The plot area is blank because we have not yet told `ggplot2` **how** to display the information. Although it knows the x-axis variable, we must specify what kind of *geometric* object we wish to use to visualize the information. Objects are referred to as "geoms" and use the syntax `geom_<type>`. We will use the `geom_histogram()` function and manually set the number of bins within the histogram to be 15. Remember that after the parent `ggplot()` call to use the `+` between functions. The histogram is created with the syntax shown below:  
+
+```{r, show_ggplot_4}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_histogram(bins = 15)
+```
+
+Now, you might be thinking that this is a lot of work to make a histogram. The real power of `ggplot2` comes from the fact we can now drill down further with relative ease. Let's break the histogram apart based on the `Species` variable. First, create a separate subplot for each `Species` level by adding in the `facet_wrap()` function. The term "facet" is used to represent a sub-plot. We can use `R`'s formula interface to tell `ggplot2` how to assign the separate sub-plots. Thus, you can think of the syntax as reading "creating subplots as a function of <variable>". The syntax looks like: `facet_wrap(~<variable>)`. In our specific example, we will use the `Species` variable as the facetting variable, as given in the code chunk below.  
+
+```{r, show_ggplot_5}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_histogram(bins = 15) +
+  facet_wrap(~Species)
+```
+
+We can drill down even further within each subplot by breaking up the histograms based on other variables in the dataset. For example, perhaps we would like to break up the `Sepal.Length` histograms based on if the `Sepal.Width` value is greater than the median `Sepal.Width` value. The result of this conditional test will be linked to the color of the histogram. Thus, we are adding an additional aesthetic to the graphic. The x-axis aesthetic was assigned within the parent `ggplot()` function, but we can also assign aesthetics within separate geom calls. The format is similar and any aesthetic not assigned within a geom will be inherited from the parent `ggplot()` call. The code chunk below shows how to break up the histograms within each `Species` level based on the conditional test. An important difference between the code chunk below with the previous code chunk is that the histogram is represented by the frequency polygon, `geom_freqpoly()`, rather than the conventional histogram. When overlaying multiple histograms within a plot, I prefer to use the frequency polygon because we only have to compare lines rather than filled in areas.  
+
+```{r, show_ggplot_6}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width))) +
+  facet_wrap(~Species)
+```
+
+As shown above, `ggplot2` automatically creates the color legend with a label. The default position of that legend shrinks the overall plot area by a considerable amount. So let's move the legend to the top of the graphic by modifying the `legend.position` argument to the `theme()` function: 
+
+```{r, show_ggplot_7}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width))) +
+  facet_wrap(~Species) +
+  theme(legend.position = "top")
+```
+
+**Question: How many aesthetics are shown in the figure above?** We set the x-axis variable to `Sepal.Length`, we assigned the color of each histogram to a conditional test applied to `Sepal.Width`, and we assigned separate facets to `Species`. But how was the y-axis variable assigned?  
+
+The `geom_histogram()` and `geom_freqpoly()` geoms by default display the **count** or number of observations found within each bin on the y-axis. Thus, both geoms perform an operation behind the scenes and display the result as the y-axis aesthetic. That operation requires: breaking up the x-axis interval into the desired number of bins, calculating the number of observations within each bin, and assigning that number to the y-axis. To make it clear that separate observations are still "known" after performing the binning and counting operation, we will add a second geom to the graphic. Let's put a tick mark along the x-axis at the exact location of the `Sepal.Length` value for each observation via the `geom_rug()` geom. As shown in the code chunk below, the new layer is added directly after the `geom_freqpoly()` call.  
+
+```{r, show_ggplot_8}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width))) +
+  geom_rug() +
+  facet_wrap(~Species) +
+  theme(legend.position = "top")
+```
+
+In the above figure, the newly added tick marks are black. **Why is that the case?** How would you set the tick marks to have the same color scheme as the histograms within each facet?  
+
+It is important to note that by displaying the count as the y-axis aesthetic for histograms, it might be difficult to compare multiple histograms when the groups have vastly different number of observations. For example, the `"setosa"` species has a different number of observations based on whether `Sepal.Width` is above its median value. The same conclusion can be drawn based on the facet for the `"versicolor"` species. We can normalize the counts to remove the impact of the *sample size* and hopefully make the *distribution* comparisons more visually telling. We already discussed the "hidden" operation performed to create the histogram, but we can instruct `ggplot2` to perform additional operations or statistical transformations. We can override the default count y-aesthetic by calling the `stat()` function. To normalize we will use `stat(density)`. If you are not familiar with the density, that is ok. We will be discussing what that term means within this course!  
+
+In the code chunk below, we set the y-axis aesthetic within the `geom_freqpoly()` call to be the statistical transformation `stat(density)`. As shown in the resulting figure, the separate histograms within each facet are now of similar max height. Plotting the density for the `"setosa"` species instead of the count really makes the "spike" like behavior stand out for the histogram corresponding to `Sepal.Width` below its median.  
+
+```{r, show_ggplot_9}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species) +
+  theme(legend.position = "top")
+```
+
+A side-effect of using the density instead of the count as the y-axis though, was that the second and third facets have "empty" space in the upper half of the plots. The y-axis scale is dominated by the first facet. We can allow the separate facets to use different axis scalings by modifying the `scales` argument to the `facet_wrap()` call. The options are, `"free"`, `"free_x"`, and `"free_y"`. Selecting `"free"` allows both axes to float within each subplot, while choosing `"free_x"` fixes the y-axis across all facets with floating x-axis (and vice versa for `"free_y"`). Because we want to visually see if the histogram covers a different range for each species we will choose the `"free_y"` option. The syntax for making this change is shown in the code chunk below.  
+
+```{r, show_ggplot_10}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  theme(legend.position = "top")
+```
+
+Another cosmetic adjustment is that I usually turn off the y-axis text when I am displaying histograms across separate facets. I do this to save space within the plot window. The y-axis text is controlled by the `axis.text.y` argument within the `theme()` function. To turn the text off we will use the `element_blank()` function, as shown in the code chunk below.  
+
+```{r, show_ggplot_11}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  theme(legend.position = "top",
+        axis.text.y = element_blank())
+```
+
+Lastly, the default colors can sometimes be a little difficult to see. So let's use a different color palette. `ggplot2` has many possible color scales. When comparing a few groups I typically use the brewer color palette with the function `scale_color_brewer()`. As shown in the code chunk below, place the scale function after the facet call:  
+
+```{r, show_ggplot_12}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  scale_color_brewer(palette = "Set1") +
+  theme(legend.position = "top",
+        axis.text.y = element_blank())
+```
+
+By showing how to plot simple histograms, we have seen some of the major elements for building a `ggplot2` figure. We must specify our dataset and map the variables to the appropriate aesthetics. We must decide what type of geometric object we will use to visualize those aesthetics. We might have to perform statistical transformations, and we may need to decide how to break up the graphic into separate facets. We can modify how the aesthetics are displayed through `scale_` functions, and finally we can alter the overall appearance of the graphic with the `theme()` function. Each of these elements are discussed in more detail within the [R for Data Science](https://r4ds.had.co.nz/) book. For a list of all available geometric objects please see the `ggplot2` [RStudio cheatsheets](https://www.rstudio.com/resources/cheatsheets/).  
+
+#### themes
+
+A quick note on themes. The default theme has a gray background and white grid lines. I like that look when I am interactively exploring a dataset, but I avoid the gray background when placing figures in presentations and reports. In those situations I prefer to use `theme_bw()` which turns the background white with gray grid lines, as shown below:  
+
+```{r, show_themes_1}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  scale_color_brewer(palette = "Set1") +
+  theme_bw() +
+  theme(legend.position = "top",
+        axis.text.y = element_blank())
+```
+
+When visually comparing a few groups, sometimes I prefer to use a different color scale than the brewer scale shown previously. The `ggthemes` package includes a color blind safe color palette. To use it, we must first download and install `ggthemes`. You can run the code chunk below if you have not already installed `ggthemes`.  
+
+```{r, install_ggthemes, eval=FALSE}
+install.packages("ggthemes")
+```
+
+The color blind safe option is the function `scale_color_colorblind()`. Rather than loading the `ggthemes` package with the `library()` call, we will access the function directly from the package with the `::` operator. I like to use this functionality when I want one or two functions from a package. This way, I do not have to load the complete package into the session. The syntax is: `<package>::<function>`. The code chunk below replaces the brewer color palette with the color blind safe palette from `ggthemes`:  
+
+```{r, show_themes_2}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density))) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  ggthemes::scale_color_colorblind() +
+  theme_bw() +
+  theme(legend.position = "top",
+        axis.text.y = element_blank())
+```
+
+## Conclusion
+
+This was just a short introduction to the `R` programming language and the `tidyverse`. There are many more topics to discuss and we will be doing so throughout the semester.  
