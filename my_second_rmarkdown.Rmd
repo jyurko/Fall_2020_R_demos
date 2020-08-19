@@ -1,0 +1,64 @@
+---
+title: "An RMarkdown example report"
+author: "Dr. Joseph P. Yurko"
+date: "8/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+# This is a main heading
+
+## a subsection
+
+### sub-sub section
+
+#### another low level heading
+
+##### 5 hashtags
+
+This is text in the document. We write just like we do in Word (or Google Docs).  
+
+To create a new line we need to
+include two
+spaces.  
+This should be a new line.  
+
+###### 6 hashtags
+
+Some more text.  
+
+## Code in RMarkdown
+
+This is a sentence that will include in-line code by adding 2 + 2 = `r 2 + 2`.  
+
+### code chunks
+
+```{r}
+# this is a comment
+
+## here's another comment
+
+### NOT a section header
+```
+
+Place another code chunk below.  
+
+```{r, eval=TRUE}
+str(iris)
+```
+
+Here's an example code chunk with an incomplete line of code.  
+
+```{r, eval=TRUE}
+x <- 3.1
+```
+
+Add 2 to the variable `x`.  
+
+```{r}
+x + 2
+```
+
