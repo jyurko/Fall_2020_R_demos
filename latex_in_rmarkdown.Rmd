@@ -1,0 +1,111 @@
+---
+title: "Writing math expression in LaTeX"
+author: "Dr. Joseph P. Yurko"
+date: "8/19/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simple variables
+
+A text x compared with a "mathy" or scripted $x$.  
+
+We can write in-line math expressions and equations in LaTeX by surrounding text with `$ $`.  
+
+A text y compared with a code `y` and a scripted $y$.  
+
+Here are some more variables, $z$, $n$, $N$, $X$.  
+
+I want to write the Greek letter "alpha". Put "alpha" inside `$ $`: $alpha$. We need to place the `\` before the phrase "alpha", so the Greek letter "alpha" is printed via `$\alpha$` and rendered as: $\alpha$.  
+
+This works for any Greek leter: $\beta$, $\delta$, $\nu$, $\sigma$, $\mu$, ...  
+If we want capital Greek letters we capitalize the first letter in the word. So the capital Greek Delta is: $\Delta$.  
+
+## Equation blocks
+
+If we want the equation away from the text we need two dollar signs, `$$ $$`.  
+$$ 
+a + b - d / 2 + \zeta
+$$
+
+Here's another text sentence.  
+
+To show a fraction we need use the `\frac{<numerator}{<denominator>}`. So to write 1/2 and 3/4:  
+
+$$ 
+\frac{1}{2}  
+\frac{3}{4}
+$$
+
+Let's use the new line characters `\\` to put the 3/4 on a new line.  
+
+$$ 
+\frac{1}{2} \\ \frac{3}{4}
+$$
+
+Now write a more complex expression, that uses parantheses:  
+
+$$ 
+\log \left( \frac{y^2}{1 + x^4} \right)
+$$
+
+What if I just wrote the expression with `( )` instead of `\left( \right)`?  
+
+$$ 
+\log ( \frac{y^2}{1 + x^4} )
+$$
+
+If we want subscripts we simply use underscore `_`. So for example if we were writing the $n$-th value of $z$ and multiplying by 2:  
+
+$$ 
+2 \times z_n \times x_n
+$$
+
+If you want the "dot" for multiplication use `\cdot`:  
+
+$$ 
+2 \cdot z_n
+$$
+
+## Vectors
+
+To denote a vector with bold face font we need to use `\mathbf{}`. For example the vector x is written:  
+
+$$ 
+\mathbf{x}
+$$
+
+Transpose of a vector $\mathbf{x}$ and matrix multiply it by itself:  
+
+$$ 
+\mathbf{x}^{T} \mathbf{x}
+$$
+
+For a matrix I will use capital letters instead of lower case letters. So the transpose of a matrix $\mathbf{X}$ multiplied by itself:  
+
+$$ 
+\mathbf{X}^{T} \mathbf{X}
+$$
+
+Use "curly braces", `{ }`, to contain complex expression inside superscripts and subscripts. For example:  
+
+$$ 
+x_{n,m,l}^{\left(p + 2\right)^{3}}
+$$
+
+## Summations
+
+If we have $N$ elements in a vector $\mathbf{x}$ and I want to sum over all elements in the vector:  
+
+$$ 
+\sum_{n=1}^{N} \left( x_n \right)
+$$
+
+Let's write out the AVERAGE of a vector $\mathbf{x}$:  
+
+$$ 
+\bar{x} = \frac{1}{N} \sum_{n=1}^{N} \left( x_n \right)
+$$
