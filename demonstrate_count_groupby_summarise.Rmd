@@ -1,7 +1,7 @@
 ---
-title: "Counting, grouping, and summarizing"
+title: "Introduction to R demos"
+subtitle: "Counting, grouping, and summarizing"
 author: "Dr. Joseph P. Yurko"
-date: "Fall 2020 semester"
 output: html_document
 ---
 
@@ -20,6 +20,7 @@ The code chunk below loads in the packages we will use. Just a single library is
 ```{r, load_packages}
 library(tidyverse)
 ```
+
 ## Counting with `iris`
 
 The `iris` data set is pre-loaded by base `R`. So let's get an idea about the structure with the `glimpse()` function.  
@@ -34,9 +35,9 @@ We can also get a high level summary of the different variables in `iris` with t
 iris %>% summary()
 ```
 
-As we can see the `Species` variable is a factor which is `R`'s terminology for categorical or discrete variables. The `summary()` function shows us that there are 3 unique values, called levels in `R`. Those three levels correspond to three different species of the flowers.  
+As we can see, the `Species` variable is a `factor` which is `R`'s terminology for categorical or discrete variables. The `summary()` function shows us that there are 3 unique values, called **levels** in `R`. Those three levels correspond to three different species of the flowers.  
 
-We can determine the number of observations or rows in the data set several ways besides just using the `summary()` function. I particularly like the `count()` function from `dplyr` (which was loaded in through the `tidyverse` library). The arguments to `count()` is the variable we wish to, as the function name states, count. `count()` will then count up the number of observations (rows) associated with each unique value of a variable. So let's see how this works with the `Species` variable.  
+We can determine the number of observations or rows for each unique value several ways besides just using the `summary()` function. I particularly like the `count()` function from `dplyr` (which was loaded in through the `tidyverse` library). The arguments to `count()` is the variable we wish to, as the function name states, count. `count()` will then "count up" the number of observations (rows) associated with each unique value of a variable. Let's see how this works with the `Species` variable.  
 
 ```{r, count_species}
 iris %>% 
@@ -57,6 +58,12 @@ As we can see there are multiple data types, including character strings (denote
 
 ```{r, check_eye_color}
 class(starwars$eye_color)
+```
+
+Alternatively, we can check the data type using the `dplyr` verb `pull()` to "pull" or extract the `eye_color` column from `starwars` and the forward pipe operator to pass the vector to the `class()` function. Both approaches, the "traditional function" approach or the "forward pipe" approach, are valid. It is up to you which you prefer to use.  
+
+```{r, check_eye_color_b}
+starwars %>% pull(eye_color) %>% class()
 ```
 
 We can use the `count()` function to count the unique values associated with any data type. So let's see how many rows are associated with each unique value of the `eye_color` in the `starwars` data set.  
@@ -109,6 +116,8 @@ starwars %>%
   theme(axis.text.x = element_text(angle=90, hjust = 1, vjust = 0.5))
 ```
 
+Heat maps are particularly useful visualizations for showing combinations that do not appear in a data set. There is a lot of white space in the above heat map. White space (or blank space depending on the panel fill color) represents the combination was not observed. It does not mean an entry's or record's value was missing in the data. It means the combination of two specific values did not occur.  
+
 ## Fractions and proportions
 
 We can use the result of the `count()` function calculate the fraction or proportion of the rows. We can pipe the result `mutate()` and perform additional operations as we want. The code chunk below demonstrates how to calculate the proportion or fraction of the observations associated with each combination of eye and hair color. The `mutate()` function creates a new column `proportion_obs` which is equal to the `n` variable divided by the `sum(n)`.  
@@ -142,7 +151,7 @@ starwars %>%
 
 ## Grouping and summarizing
 
-The `count()` function is useful but it is clearly limited since it can only count the number of observations. That limitation was made on purpose however. When we need great flexibility and greater control we can use the combination of `group_by()` and `summarize()`. The `group_by()` function works behind the scenes to put "meta" information associated with the data set. Let's see what happens when we use the `group_by()` function to group by the `eye_color` and `hair_color` on the `starwars` data set. To make the print out easier to read, the result of `group_by()` is pipped into `glimpse()`.  
+The `count()` function is useful but it is clearly limited since it can only count the number of observations. However, that limitation was made on purpose. When we need greater flexibility and greater control we can use the combination of `group_by()` and `summarize()`. The `group_by()` function works behind the scenes to put "meta" information associated with the data set. Let's see what happens when we use the `group_by()` function to group by the `eye_color` and `hair_color` on the `starwars` data set. To make the print out easier to read, the result of `group_by()` is pipped into `glimpse()`.  
 
 ```{r, make_the_group_eye_hair}
 starwars %>% 
@@ -150,14 +159,14 @@ starwars %>%
   glimpse()
 ```
 
-The displayed result is the exact same as we saw before, except we see that `glimpse()` displays the grouping information. It tells us that groups are specified by `eye_color` and `hair_color` and that there are 35 groups.  
+The displayed result is the exact same as we saw before, **except** we see that `glimpse()` displays the grouping information. It tells us that groups are specified by `eye_color` and `hair_color` and that there are 35 groups.  
 
-We cannot "see" those groups in the observations, because we have not performed operations with the groups. A common sequence of operations is to use `group_by()` followed by `summarize()` where, as the name states, summarize a data set. The sequence of `group_by()` and `summarize()` "reads" as summarize the data associated with groups defined by the variables in the `group_by()` function. This sequence of steps is usually referred to as "split-apply-combine" in that we:  
-* "split" or "breakup" the data set into different groups.
+We cannot "see" those groups in the observations, because we have not performed operations with the groups. A common sequence of operations is to follow `group_by()` with the `summarize()` function. As the name states, `summarize()` summarizes a data set. The sequence of `group_by()` and `summarize()` "reads" as summarize the data associated with groups defined by the variables in the `group_by()` function. This sequence of steps is usually referred to as **split-apply-combine** in that we:  
+* "split" or "divide" the data set into different groups.
 * "apply" functions and operations to each group.
 * "combine" the groups back into a single data set.
 
-The `group_by()` and `summarize()` sequence performs the "split-apply-combine" work flow for us. So we don't have to manually break up the data set into separate groups. It all takes place behind the scenes.  
+The `group_by()` and `summarize()` sequence performs the "split-apply-combine" work flow for us. We do not need to manually divide the data into separate groups. Everything takes place behind the scenes.  
 
 Let's see how this works by counting the number of observations associated with each combination of `eye_color` and `hair_color` in the `starwars` data set. This is exactly what `count()` accomplishes, so it will be a useful confirmation that we are performing the steps correctly. The `summarize()` function will create new columns in a grouped data set. The rows will correspond to the unique combinations of the variables specified within `group_by()`. The operations we specify in `summarize()` will be performed on each unique combination using syntax similar to that of the `mutate()` function. We create a new summarized variable with the following syntax:  
 
@@ -172,13 +181,37 @@ starwars %>%
   arrange(desc(num_rows))
 ```
 
+When grouping by multiple variables, a warning message is automatically returned stating that a grouping structure is still present. By default, the `summarize()` function removes one "grouping layer". The grouping layers are ordered in the same order the grouping variables were typed. Thus, `hair_color` was removed and the summarized data are still grouped by the `eye_color` variable.  
+
+Personally, I do not like to work with grouped objects. Instead, I like the returned summarized object to be a "regular" dataframe or tibble and thus have no grouping structure imposed. There are two ways we can remove the grouping structure. First, we can pass the returned grouped object to the `ungroup()` function to remove any grouping structure:  
+
+```{r, group_count_manually_b}
+starwars %>% 
+  group_by(eye_color, hair_color) %>% 
+  summarise(num_rows = n()) %>% 
+  ungroup() %>% 
+  arrange(desc(num_rows))
+```
+
+Alternatively, we can specify the `summarize()` function's `.groups` argument to be `'drop'`. This "drops" the grouping and returns a "regular" dataframe (tibble) as the result of `summarize()`. This is the approach suggested by the warning messages displayed in the output of the two previous code chunks.  
+
+```{r, group_count_manually_c}
+starwars %>% 
+  group_by(eye_color, hair_color) %>% 
+  summarise(num_rows = n(),
+            .groups = 'drop') %>% 
+  arrange(desc(num_rows))
+```
+
+
 Let's now see more complex operations. Perhaps we would like to calculate the number of unique `homeworld`s associated with each `eye_color` and `hair_color` combinations. The `n_distinct()` function accepts a variable as an argument and counts the number of unique values. It does **not** return what those values are, just the number of unique values. We will assign the result of the `n_distinct()` function to `num_home_worlds` within the `summarize()` call. The result is then piped to `arrange()` to again arrange by the number of rows associated with each `eye_color` and `hair_color` combination.  
 
 ```{r, group_eye_hair_homeworlds}
 starwars %>% 
   group_by(eye_color, hair_color) %>% 
   summarise(num_rows = n(),
-            num_home_worlds = n_distinct(homeworld)) %>% 
+            num_home_worlds = n_distinct(homeworld),
+            .groups = 'drop') %>% 
   arrange(desc(num_rows))
 ```
 
@@ -198,7 +231,8 @@ starwars %>%
   group_by(eye_color, hair_color) %>% 
   summarise(num_rows = n(),
             num_home_worlds = n_distinct(homeworld),
-            num_species = n_distinct(species)) %>% 
+            num_species = n_distinct(species),
+            .groups = 'drop') %>% 
   arrange(desc(num_rows))
 ```
 
@@ -209,11 +243,13 @@ starwars %>%
   group_by(eye_color, hair_color) %>% 
   summarise(num_rows = n(),
             num_home_worlds = n_distinct(homeworld),
-            num_species = n_distinct(species)) %>% 
+            num_species = n_distinct(species),
+            .groups = 'drop') %>% 
   ungroup() %>% 
   count(num_species) %>% 
   arrange(desc(n))
 ```
+
 ## Homeworlds and eye color
 
 We have been looking through basic counts of the variables in the `starwars` data set. Let's now see if the `eye_color` is associated with a few `homeworld`s. The code chunk below displays the numbe rof rows associated with each `homeworld`. The two `homeworld`s with the highest counts are `'Naboo'` and `'Tatooine'`. If you know anything about the Original Trilogy (OT), then you should know about Tatooine. The planet Naboo was introduced in the Prequel Trilogy (PT).  
@@ -242,12 +278,12 @@ my_df %>%
   summarise(mean(pred_planets == obs_planets))
 ```
 
-My guess about if `'brown'` eyes are associated with `"Tatooine"` and/or `"Naboo"` has an accuracy of about 68%. But how well does that compare to the empirical fraction of those planets in the data set? Let's calculate the fraction of rows where `obs_planets` eqauls `'yes'` using the `mean()` function in the code chunk below.  
+My guess about if `'brown'` eyes are associated with `"Tatooine"` and/or `"Naboo"` has an accuracy of about 68%. But how well does that compare to the empirical fraction of those planets in the data set? Let's calculate the fraction of rows where `obs_planets` equals `'yes'` using the `mean()` function in the code chunk below.  
 
 ```{r, check_emp_fraction}
 mean(my_df$obs_planets == "yes")
 ```
-Wow only 24% of the observations are from those two planets. So it looks like knowing if the character has `'brown'` eyes helps us make a better guess as to whether they are from Naboo or Tatooine!  
+Wow only 24% of the observations are from those two planets! So it looks like knowing if the character has `'brown'` eyes helps us make a better guess as to whether they are from Naboo or Tatooine!  
 
 However, what if my "model" only appears to do well because 75% of the observations are **not** from those two planets? After all, the Accuracy does not care how the "prediction" was correct, just as long as it was correct. The confusion matrix will help us understand the error behavior.  
 

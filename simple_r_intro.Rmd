@@ -1,5 +1,5 @@
 ---
-title: "Fall 2020 semester R Demos"
+title: "Introduction to R demos"
 subtitle: "Simple introduction to R programming, dplyr, and ggplot2"
 author: "Dr. Joseph P. Yurko"
 output: html_document
@@ -380,13 +380,14 @@ Before we can use a package, we must first download and install it. RStudio prov
 install.packages("tidyverse")
 ```
 
-We won't go through the complete `tidyverse` just yet. We'll start with `dplyr` and `ggplot2`. `dplyr` is the primary `tidyverse` package for manipulating, wrangling, and transforming data. `ggplot2` is a data visualization package which follows the "grammar of graphics" structured approach for building statistical graphics.  
+We won't go through the complete `tidyverse` just yet. We'll start with `dplyr`, `ggplot2`, and `tibble`. `dplyr` is the primary `tidyverse` package for manipulating, wrangling, and transforming data. `ggplot2` is a data visualization package which follows the "grammar of graphics" structured approach for building statistical graphics. The `tibble` package includes useful functions for managing tabular data contained in dataframes.  
 
-We only have to download and install a package once. But, to make use of that package we have to load it into our session using the `library()` function. So, let's load in both `dplyr` and `ggplot2`.  
+We only have to download and install a package once. But, to make use of that package we have to load it into our session using the `library()` function. So, let's load in `dplyr`, `ggplot2`, and `tibble`.  
 
-```{r, load_packages, warning=FALSE, message=FALSE}
+```{r, load_packages}
 library(dplyr)
 library(ggplot2)
+library(tibble)
 ```
 
 ### Pipe
@@ -419,7 +420,7 @@ As you can imagine, as our data manipulation workflow grows, the conventional "i
 
 ### tibble
 
-As you start to get used to the `tidyverse` you might start to notice slight differences in `data.frame`s relative to "base" `R`. That's because within the `tidyverse`, the `data.frame` has been modified to a newer data type referred to as the `tibble`. Some of the changes are just cosmetic, but I have come to prefer `tibble`s over `data.frame`s. To see a simple difference between the two, we will convert the `my_df` `data.frame` into a `tibble` with the `tbl_df()` function from `dplyr`.  
+As you start to get used to the `tidyverse` you might start to notice slight differences in `data.frame`s relative to "base" `R`. That's because within the `tidyverse`, the `data.frame` has been modified to a newer data type referred to as the `tibble`. Some of the changes are just cosmetic, but I have come to prefer `tibble`s over `data.frame`s. To see a simple difference between the two, we will convert the `my_df` `data.frame` into a `tibble` with the `as_tibble()` function from the `tibble` package..  
 
 First, print to screen the original `my_df` object:  
 
@@ -427,10 +428,10 @@ First, print to screen the original `my_df` object:
 my_df
 ```
 
-Now, pipe `my_df` into the `tbl_df()` function:  
+Now, pipe `my_df` into the `as_tibble()` function:  
 
 ```{r, show_tibble_2}
-my_df %>% tbl_df()
+my_df %>% as_tibble()
 ```
 
 Notice that the `tibble` version of `my_df` outputs to the screen additional information than the standard `data.frame`. We can see the data type associated with each variable, and we are explicitly told the dimensions of the object.  
@@ -439,7 +440,7 @@ This change in printed display is especially useful when first exploring a large
 
 To showcase this functionality, print to screen the `iris` dataset after piping it into the `tbl_df()` function.  
 ```{r, show_tibble_3}
-iris %>% tbl_df()
+iris %>% as_tibble()
 ```
 
 There are additional differences between `data.frame`s and `tibble`s, but that's all we need to consider for now.  
@@ -447,26 +448,26 @@ There are additional differences between `data.frame`s and `tibble`s, but that's
 The `tidyverse` has other alternatives to "base" `R` operations. Previously, we had used the `str()` function to examine the structure of an object. The `tidyverse` alternative to `str()` is `glimpse()`. It's up to you which version you prefer, but I usually use `glimpse()` over `str()`. The `glimpse()` output on the `my_df` object is:  
 
 ```{r, show_tibble_4}
-my_df %>% tbl_df() %>% glimpse()
+my_df %>% as_tibble() %>% glimpse()
 ```
 
 ### dplyr
 
-`dplyr` provides the core `tidyverse` data manipulation, wrangling, and transformation capabilities. `dplyr` is based on a series of action verbs to explicitly state the operation we are performing. Understanding precisely what that means is easiest to see with an example. We had previously seen how to select columns from `my_df` with a `<column index>` and a `<column name>`. To perform the same operations with `dplyr` we will use the `select()` verb. Furthermore, `dplyr` allows what is referred to as "non-standard evaluation" of variables in that we do **not** have to put variable names within quotes within the call to `select()`. To see this in action, select `x_1` and `x_3`, from the `tibble` version of `my_df`:  
+`dplyr` provides the core `tidyverse` data manipulation, wrangling, and transformation capabilities. `dplyr` is based on a series of action **verbs** to explicitly state the operation we are performing. Understanding precisely what that means is easiest to see with an example. We had previously seen how to select columns from `my_df` with a `<column index>` and a `<column name>`. To perform the same operations with `dplyr` we will use the `select()` verb. Furthermore, `dplyr` allows what is referred to as "non-standard evaluation" of variables in that we do **not** have to put variable names within quotes within the call to `select()`. To see this in action, select `x_1` and `x_3`, from the `tibble` version of `my_df`:  
 
 ```{r, show_dplyr_1}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   select(x_1, x_3)
 ```
 
-Non-standard evaluation is especially useful when interactively exploring a dataset. It saves time to not have to put quotes around variable names. Plus, if you're using RStudio as your IDE, you can tab-complete variable names within the action verbs. Tab-complete saves time and cuts down on typos, and so is a practice I highly encourage you to become comfortable with.  
+Non-standard evaluation is especially useful when interactively exploring a dataset. It saves time to not have to put quotes around variable names. Plus, if you're using RStudio as your IDE, you can tab-complete variable names within the action verbs. Tab-complete saves time and cuts down on typos, and thus is a practice I highly encourage you to become comfortable with.  
 
 As great as non-standard evaluation is, it is challenging to programmatically performing operations. To support such efforts, the `select()` verb also accepts both `<column index>` values and `<column name>` strings. Selecting `x_1` and `x_3` using their column indices is performed as:  
 
 ```{r, show_dplyr_2}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   select(c(1, 3))
 ```
 
@@ -474,23 +475,50 @@ And likewise using the column names as strings:
 
 ```{r, show_dplyr_3}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   select(c("x_1", "x_3"))
 ```
 
+However, the most recent `tidyverse` programming guide does not recommend passing a vector directly to `select()`. The most recent guidelines instead recommend using the `all_of()` helper. The code chunk below shows how to use `all_of()`:  
+
+```{r, show_dplyr_3b}
+my_df %>% 
+  as_tibble() %>% 
+  select(all_of( c('x_1', 'x_3') ))
+```
+
+It might seem odd at first to use an intermediate function like `all_of()`. However, it is recommended to avoid ambiguity between the value of an *environment variable* and the name of a *data variable*. The term environment variable refers to variables in memory within the environment. A data variable is essentially the column within a dataframe (or tibble). The ambiguity may arise due to the fact that the `tidyverse` allows for non-standard evaluation and thus the `all_of()` helper removes all possible ambiguity.  
+
+This might seem confusing, but a simple way to remember it is, if you are working "interactively" you do not need quotes on the column name and thus do not need the `all_of()` helper.  
+
+```{r, show_dplyr_3c}
+my_df %>% 
+  as_tibble() %>% 
+  select(x_1, x_3)
+```
+
+However, if you want to use a `character` (string) to identify the column then you should use the `all_of()` helper.  
+
+```{r, show_dplyr_3d}
+my_df %>% 
+  as_tibble() %>% 
+  select( all_of( c("x_1", "x_3") ) )
+```
+
+
 While `select()` subsets the columns, the action verbs `slice()` and `filter()` subset the rows. `slice()` requires passing in the row indices of interest. Thus, the syntax to return the 1st, 2nd, and 4th rows from `my_df` with `slice()` is:  
 
-```{r, show_dplyr_4, warning=FALSE, message=FALSE}
+```{r, show_dplyr_4}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   slice(c(1, 2, 4))
 ```
 
-Conditional subsetting is performed by the `filter()` action verb. It is important to note that when executing `filter()` you are **removing** all rows that do **not** meet the condition. So in some sense you are filtering the rows that pass the conditional test *into* the new dataset. To return the same set of rows in the `slice()` example code chunk above, we would want to keep all rows that have `x_4 ==` `r TRUE`.  The code chunk below shows the syntax to accomplish that goal.  
+Conditional subsetting is performed by the `filter()` action verb. It is important to note that when executing `filter()` you are **removing** all rows that do **NOT** meet the condition. So in some sense you are filtering the rows that pass the conditional test *into* the returned dataset. To return the same set of rows in the `slice()` example code chunk above, we would want to keep all rows that have `x_4 ==` `r TRUE`.  The code chunk below shows the syntax to accomplish that goal.  
 
 ```{r, show_dplyr_5}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   filter(x_4 == TRUE)
 ```
 
@@ -498,7 +526,7 @@ There are a few ways to apply additional filtering steps as **AND** operations, 
 
 ```{r, show_dplyr_6}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   filter(x_4 == TRUE) %>% 
   filter(x_3 > 0)
 ```
@@ -507,7 +535,7 @@ The next option is to separate the filter steps within the `filter()` call with 
 
 ```{r, show_dplyr_7}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   filter(x_4 == TRUE,
          x_3 > 0)
 ```
@@ -516,21 +544,21 @@ The most formal option however, is to use an `&` symbol:
 
 ```{r, show_dplyr_8}
 my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   filter(x_4 == TRUE &
            x_3 > 0)
 ```
 
-It is important to note that `R` does not override the `my_df` after performing the filtering actions. That is why we could start the previous code chunk with the original `my_df` object even though we had demonstrated the filtering operation in earlier code chunks. If we want the results of our `dplyr` action verbs to "hold" or "take effect" we need to assign the result of the operations to a variable. If we would assign the result to `my_df` itself, the `my_df` object would be modified. For now, let's assign the result of the previous code chunk to the object `my_df_b`:  
+It is important to note that `R` does not modify in place. That is why we could start the previous code chunk with the original `my_df` object even though we had demonstrated the filtering operation in earlier code chunks. If we want the results of our `dplyr` action verbs to "hold", "take effect", or to be "saved" we need to assign the result of the operations to a variable. If we would assign the result to `my_df` itself, the `my_df` object would be modified. For now, let's assign the result of the previous code chunk to the object `my_df_b`:  
 
 ```{r, show_dplyr_9}
 my_df_b <- my_df %>% 
-  tbl_df() %>% 
+  as_tibble() %>% 
   filter(x_4 == TRUE &
            x_3 > 0)
 ```
 
-Note that the code chunk above did **not** display an output to the screen. We did not print the `my_df_b` object. We assigned it as the end result of the workflow of actions.  
+Note that the above code chunk did **not** display an output to the screen. We did not print the `my_df_b` object. We assigned it as the end result of the workflow of actions.  
 
 There are many other action verbs within `dplyr`, and still yet more data transformation functions within other `tidyverse` packages. We will use many of those capabilities throughout the semester. For now though, **practice** using the `select()` and `filter()` verbs on the `iris` dataset. Repeat the operations you performed previously in "base" `R`, but now within the `tidyverse`.  
 
@@ -538,7 +566,7 @@ There are many other action verbs within `dplyr`, and still yet more data transf
 
 `ggplot2` is a system of building up statistical graphics layer by layer, and is based on the Grammar of Graphics. When creating a `ggplot2` figure, we must "map" all visual aspects of the figure (called *aesthetics*) to a variable. We will therefore be following a formal structure and process to create a figure. The Grammar of Graphics framework really gets you thinking of the type of information you want to display graphically. Although that process may seem tedious at first, it aids in reproducibility of your work by making each aspect of a figure explicitly known.  
 
-We will introduce the basic layers of a `ggplot2` graphic with the `iris` dataset. We will also continue to use the pipe operator to pass the dataset into the primary or parent `ggplot()` function call. **HOWEVER** it is very important to note, once we have made the `ggplot()` call, all layers within the graphic **must** be separated by `+` rather than the `%>%`. This will seem confusing, but it has to do with the fact that `ggplot2` was created before the pipe operator.  
+We will introduce the basic layers of a `ggplot2` graphic with the `iris` dataset. We will also continue to use the pipe operator to pass the dataset into the primary or parent `ggplot()` function call. **HOWEVER** it is very important to note, once we have made the `ggplot()` call, all layers within the graphic **must** be separated by `+` rather than the `%>%`. This will seem confusing, but it has to do with the fact that `ggplot2` was created many years before the pipe operator.  
 
 Let's start out by plotting a simple histogram of the `Sepal.Length` variable. If we pipe `iris` into the `ggplot()` function call...  
 
@@ -567,7 +595,7 @@ iris %>%
   geom_histogram(bins = 15)
 ```
 
-Now, you might be thinking that this is a lot of work to make a histogram. The real power of `ggplot2` comes from the fact we can now drill down further with relative ease. Let's break the histogram apart based on the `Species` variable. First, create a separate subplot for each `Species` level by adding in the `facet_wrap()` function. The term "facet" is used to represent a sub-plot. We can use `R`'s formula interface to tell `ggplot2` how to assign the separate sub-plots. Thus, you can think of the syntax as reading "creating subplots as a function of <variable>". The syntax looks like: `facet_wrap(~<variable>)`. In our specific example, we will use the `Species` variable as the facetting variable, as given in the code chunk below.  
+Now, you might be thinking that this is a lot of work to make a histogram. The real power of `ggplot2` comes from the fact we can now drill down further with relative ease. Let's break the histogram apart based on the `Species` variable. First, create a separate subplot for each `Species` level by adding in the `facet_wrap()` function. The term "facet" is used to represent a subplot. We can use `R`'s formula interface to tell `ggplot2` how to assign the separate sub-plots. Thus, you can think of the syntax as reading "creating subplots as a function of <variable>". The syntax looks like: `facet_wrap(~<variable>)`. In our specific example, we will use the `Species` variable as the facetting variable, as given in the code chunk below.  
 
 ```{r, show_ggplot_5}
 iris %>% 
@@ -576,7 +604,7 @@ iris %>%
   facet_wrap(~Species)
 ```
 
-We can drill down even further within each subplot by breaking up the histograms based on other variables in the dataset. For example, perhaps we would like to break up the `Sepal.Length` histograms based on if the `Sepal.Width` value is greater than the median `Sepal.Width` value. The result of this conditional test will be linked to the color of the histogram. Thus, we are adding an additional aesthetic to the graphic. The x-axis aesthetic was assigned within the parent `ggplot()` function, but we can also assign aesthetics within separate geom calls. The format is similar and any aesthetic not assigned within a geom will be inherited from the parent `ggplot()` call. The code chunk below shows how to break up the histograms within each `Species` level based on the conditional test. An important difference between the code chunk below with the previous code chunk is that the histogram is represented by the frequency polygon, `geom_freqpoly()`, rather than the conventional histogram. When overlaying multiple histograms within a plot, I prefer to use the frequency polygon because we only have to compare lines rather than filled in areas.  
+We can drill down even further within each subplot by grouping the histograms based on other variables in the dataset. For example, perhaps we would like to break up the `Sepal.Length` histograms based on if the `Sepal.Width` value is greater than the median `Sepal.Width` value. The result of this conditional test will be linked to the color of the histogram. Thus, we are adding an additional aesthetic to the graphic. The x-axis aesthetic was assigned within the parent `ggplot()` function, but we can also assign aesthetics within separate geom calls. The format is similar and any aesthetic not assigned within a geom will be inherited from the parent `ggplot()` call. The code chunk below shows how to break up the histograms within each `Species` level based on the conditional test. An important difference between the code chunk below with the previous code chunk is that the histogram is represented by the frequency polygon, `geom_freqpoly()`, rather than the conventional histogram. When overlaying multiple histograms within a plot, I prefer to use the frequency polygon because we only have to compare lines rather than filled in areas.  
 
 ```{r, show_ggplot_6}
 iris %>% 
@@ -613,7 +641,7 @@ iris %>%
 
 In the above figure, the newly added tick marks are black. **Why is that the case?** How would you set the tick marks to have the same color scheme as the histograms within each facet?  
 
-It is important to note that by displaying the count as the y-axis aesthetic for histograms, it might be difficult to compare multiple histograms when the groups have vastly different number of observations. For example, the `"setosa"` species has a different number of observations based on whether `Sepal.Width` is above its median value. The same conclusion can be drawn based on the facet for the `"versicolor"` species. We can normalize the counts to remove the impact of the *sample size* and hopefully make the *distribution* comparisons more visually telling. We already discussed the "hidden" operation performed to create the histogram, but we can instruct `ggplot2` to perform additional operations or statistical transformations. We can override the default count y-aesthetic by calling the `stat()` function. To normalize we will use `stat(density)`. If you are not familiar with the density, that is ok. We will be discussing what that term means within this course!  
+It is important to note that by displaying the count as the y-axis aesthetic for histograms, it might be difficult to compare multiple histograms when the groups have vastly different number of observations. For example, the `"setosa"` species has a different number of observations based on whether `Sepal.Width` is above its median value. The same conclusion can be drawn based on the facet for the `"versicolor"` species. We can normalize the counts to remove the impact of the *sample size* and hopefully make the *distribution* comparisons more visually telling. We already discussed the "hidden" operation performed to create the histogram, but we can instruct `ggplot2` to perform additional operations or *statistical transformations*. We can override the default count y-aesthetic by calling the `stat()` function. To normalize we will use `stat(density)`. If you are not familiar with the density, that is ok. We will be discussing what that term means within this course!  
 
 In the code chunk below, we set the y-axis aesthetic within the `geom_freqpoly()` call to be the statistical transformation `stat(density)`. As shown in the resulting figure, the separate histograms within each facet are now of similar max height. Plotting the density for the `"setosa"` species instead of the count really makes the "spike" like behavior stand out for the histogram corresponding to `Sepal.Width` below its median.  
 
@@ -711,6 +739,24 @@ iris %>%
   theme(legend.position = "top",
         axis.text.y = element_blank())
 ```
+
+Lastly, we can increase the line thickness of the frequency polygons by changing the `size` argument to the `geom_freqpoly()` function. We are not associating the `size` with a variable from the dataset. Thus, we will manually set the `size` **outside** the `aes()` function within `geom_freqpoly()`. The code chunk below raises the frequency polygon line size to 1.2.  
+
+```{r, show_themes_3}
+iris %>% 
+  ggplot(mapping = aes(x = Sepal.Length)) +
+  geom_freqpoly(bins = 15,
+                mapping = aes(color = Sepal.Width > median(Sepal.Width),
+                              y = stat(density)),
+                size = 1.2) +
+  geom_rug() +
+  facet_wrap(~Species, scales = "free_y") +
+  ggthemes::scale_color_colorblind() +
+  theme_bw() +
+  theme(legend.position = "top",
+        axis.text.y = element_blank())
+```
+
 
 ## Conclusion
 

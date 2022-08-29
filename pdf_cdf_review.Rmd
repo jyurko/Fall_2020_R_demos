@@ -1,40 +1,39 @@
 ---
-title: "Probability density function review"
-subtitle: "Fall 2020 semester"
+title: "Introduction to R demos"
+subtitle: "Probability density function review"
 author: "Dr. Joseph P. Yurko"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Overview
 
-This markdown quickly reviews important concepts related to working with probability density functions (pdfs) and cumulative distribution functions (CDFs). This markdown uses the following packages:  
+This markdown quickly reviews important concepts related to working with probability density functions (pdfs) and cumulative distribution functions (CDFs). Just a single library is loaded in, `tidyverse`, which brings in multiple packages as shown in the code chunk display below.  
 
-```{r, load_packages, warning=FALSE, message=FALSE}
-library(dplyr)
-library(ggplot2)
+```{r, load_packages}
+library(tidyverse)
 ```
 
-This markdown also uses the functions from the `purrr`, `tibble`, and `tidyr` packages which are all installed along with the rest of the `tidyverse`.  
+This markdown uses functions from the `dplyr` and `tibble` packages introduced in previous examples. However, it also makes use of functions from `tidyr` and `purrr`. Both of these packages are part of the wider `tidyverse` and are imported with `dplyr`.  
 
 ## Gaussian distribution
 
-We will start with the Gaussian or normal distribution. The density of a gaussian variable $x$ with hyperparameters $\mu$ and $\sigma$ is:  
+We will start with the Gaussian or normal distribution. The density of a Gaussian variable $x$ with hyperparameters $\mu$ and $\sigma$ is:  
 
 $$ 
 p\left( x|\mu,\sigma \right) = \frac{1}{\sigma \sqrt{2\pi}} \mathrm{exp}\left(-\frac{1}{2} \left(\frac{x-\mu}{\sigma} \right)^2 \right)
 $$
 
-The **standard** normal density corresponds to a gaussian distributed variable with $\mu = 0$ and $\sigma = 1$:  
+The **standard** normal density corresponds to a Gaussian distributed variable with $\mu = 0$ and $\sigma = 1$:  
 
 $$ 
 p\left(x|\mu=0,\sigma=1\right) = \frac{1}{\sqrt{2\pi}} \mathrm{exp} \left( -\frac{1}{2}x^2 \right)
 $$
 
-As we discussed in lecture, if we define a variable $z = \sigma \cdot x + \mu$, and $x$ has a Gaussian distribution, the variable $z$ will have a standard normal distribution. In this document we will focus on the standard normal, but because of this transformation we can apply our learnings to Gaussian distributions in general.  
+As we will discuss in lecture, if we define a variable $z = \sigma \times x + \mu$, and $x$ has a Gaussian distribution, the variable $z$ will have a standard normal distribution. In this document we will focus on the standard normal, but because of this transformation we can apply our learning to a general Gaussian distribution.  
 
 ### R functions
 
@@ -45,13 +44,13 @@ The first of those functions, `dnorm()`, evaluates the density function of a Gau
 dnorm(x = 1.15)
 ```
 
-We get the same result if we explicitely set the `mean = 0` and `sd = 1`:  
+We get the same result if we explicitly set the `mean = 0` and `sd = 1`:  
 
 ```{r, ex_dnorm_02}
 dnorm(x = 1.15, mean = 0, sd = 1)
 ```
 
-In the previous code chunks, we passed in scalars to the `x` argument of the `dnorm()` function. We can also pass in vectors in order to evaluate the density function at many different `x` variable values. For example, evaluate the standard normal density function at -2, -1, 0, 1:  
+In the previous code chunks, we passed in scalars to the `x` argument of the `dnorm()` function. We can also pass in vectors in order to evaluate the density function at many different `x` variable values. For example, evaluate the standard normal density function at -2, -1, 0, 1, and 2:  
 
 ```{r, ex_dnorm_03}
 dnorm(x = -2:2, mean = 0, sd = 1)
@@ -59,7 +58,7 @@ dnorm(x = -2:2, mean = 0, sd = 1)
 
 ### Visualize
 
-Using this notation we will evaluate the standard normal density function over the interval -4.5 to 4.5. The code chunk below creates a `tibble` with the variable `x` which has 1001 elements from -4.5 to 4.5. That `tibble` is piped into the `mutate()` function where the variable `normal_pdf` is created by passing the variable `x` to the `dnorm()` function.  
+Using this notation we will evaluate the standard normal density function over the interval -4.5 to 4.5. The code chunk below creates a `tibble` with the variable `x` which has 1001 elements from -4.5 to 4.5. That `tibble` is passted into the `mutate()` function where the variable `normal_pdf` is created by passing the variable `x` to the `dnorm()` function.  
 
 ```{r, ex_dnorm_04}
 df_gauss <- tibble::tibble(
@@ -80,9 +79,10 @@ df_gauss %>%
         axis.title = element_text(size = 12))
 ```
 
-Looking at the distribution shape reveals some important properties of the Gaussian. First, it is symmetric. Second, it is unimodal, since there is just one local maximum density value. The center of the distribution is located at `x = 0`, which corresponds to the mean or expected value of the standard normal, $\mathbb{E}\left[x\right]=\mu$. As shown in the figure, the maximum density value (the mode) is also located at the `x = 0`. Thus, the mode and mean are the same for a Gaussian.  
+Looking at the distribution's shape reveals some important properties of the Gaussian. First, it is symmetric. Second, it is unimodal, since there is just one local maximum density value. The center of the distribution is located at `x = 0`, which corresponds to the mean or expected value of the standard normal, $\mathbb{E}\left[x\right]=\mu$. As shown in the figure, the maximum density value (the mode) is also located at the `x = 0`. Thus, the **mode and mean are the same for a Gaussian**.  
 
-Although it may not be obvious from just look at the figure, the mode and mean also correspond to the median. This property occurs for any symmetric unimodal distribution, not just the Gaussian (as long as the distribution has a mean). The median is the 50th quantile and corresponds to the $x$ value where the probability *mass* up to and including that value is 50%. That also means that 50% of the probability mass is located above (or greater) than the median. Notice the language used to the describe the median. The median does not correspond to the value that has 50% chance of occuring. Remember that the Gaussian distribution is continuous, and thus the probability that $x$ exactly equals a specific value is 0. In fact, the density function does not give the probability, it gives (as the name states) the *density*. In order to calculate the probability we must *integrate* the density function. Hence why the term *mass* was used. The interval we integrate over is the "volume" that contains the probability mass. The higher the density is within an interval, the more the mass in concentrated within that interval relative to other intervals.  
+Although it may not be obvious from just look at the figure, **the mode and mean also correspond to the median for a Gaussian**. This property occurs for any symmetric unimodal distribution, not just the Gaussian (as long as the distribution has a mean). The median is the 0.5 quantile and corresponds to the $x$ value where the probability *mass* up to and including that value is 50%. That also means that 50% of the probability mass is located above (or greater) than the median. Notice the language used to the describe the median. The median does not correspond to the value that has 50% chance of occurring. Remember that the Gaussian distribution is continuous, and thus the probability that $x$ exactly equals a specific value is 0. In fact, the density function does not give the probability, it gives (as the name states) the *density*. In order to calculate the probability we must *integrate* the density function. Hence why the term *mass* was used. The interval we integrate over is the "volume" that contains the probability mass. The higher the density is within an interval, the more the mass in concentrated within that interval relative to other intervals.  
+
 Let's make this clear by visualizing the Cumulative Distribution Function (CDF). In the code chunk below, we pipe `df_gauss` into `mutate()` and call the `pnorm()` function. The result is piped into a `ggplot()` to visualize the CDF with respect to the `x` variable.  
 
 ```{r, ex_pnorm_01}
@@ -98,25 +98,25 @@ df_gauss %>%
 
 What's going on here? The x-axis is still the standard normal random variable, `x`. The y-axis is now between 0 and 1, because the y-axis gives the probability that the variable will take on a value less than or equal to the corresponding value on the x-axis. By integrating, we are "accumulating" the density to calculate the probability mass "contained" up to that point. That is why on the far left side of the x-axis (around `x = -4`) the CDF value displayed on the y-axis is essentially zero. At the extreme values of $x \leq -4$, the density is very low, so integrating over the interval yields a low probability. Why then does the right hand side of the figure, with $x \geq 4$, have CDF values all near 1? The density, as shown in the PDF figure, is also very low in that interval as well?  
 
-Let's put the PDF and CDF together into a single graphic with separate facets. In the figure below the CDF is displayed by the plot shown in the top row, while the PDF is shown by the plot in the bottom row. The dataset needed to be reformated or *reshaped* to a **long** or **tall** format in order to create the figure below. The reshaping or *pivoting* operation is controlled by the `tidyr::gather()` function. We will discuss `tidyr::gather()` in more detail another time.  
+Let's put the PDF and CDF together into a single graphic with separate facets. In the figure below the CDF is displayed by the plot shown in the top row, while the PDF is shown by the plot in the bottom row. The dataset needed to be reformatted or *reshaped* to a **long** or **tall** format in order to create the figure below. The reshaping or *pivoting* operation is controlled by the `pivot_longer()` function. We will discuss `pivot_longer()` in more detail another time, but notice that the `starts_with()` helper function is used to identify the columns of interest. The syntax "reads" as "gather all columns that have names starting with" the pattern `'normal_'`. The reshaped long-format data are then passed to `ggplot()`. The `facet_grid()` function is used to create separated subplots for the CDF and PDF curves.  
 
 ```{r, combine_pdf_cdf}
 df_gauss %>% 
   mutate(normal_cdf = pnorm(q = x)) %>% 
   tibble::rowid_to_column() %>% 
-  tidyr::gather(key = "key", value = "value", -rowid, -x) %>% 
+  pivot_longer(starts_with('normal_')) %>% 
   ggplot(mapping = aes(x = x, y = value)) +
-  geom_line(mapping = aes(group = key), size = 1.15) +
-  facet_grid(key ~ ., scales = "free_y") +
+  geom_line(mapping = aes(group = name), size = 1.15) +
+  facet_grid(name ~ ., scales = "free_y") +
   scale_x_continuous(breaks = -4:4) +
   theme_bw()
 ```
 
-Let's walk through the figure above. The CDF is calculated by integrating the PDF over the entire range of the `x` variable (known as the support). A Gaussian random variable is unbounded, spanning the whole real line. Thus we must integrate from $-\infty$ to $+\infty$. The PDF shows that for $\left| x\right|>3$ the density is very low. Thus integrating from $-\infty$ up to -3 yields very little mass. As we continue to move from -3 to -2, the density increases, yielding an increasing slope in the CDF, though it is still rather small. Continuing to from -2 to -1 however, we that the slope of the CDF increases sharply. The slope from -1 to 0 appears roughly constant in the CDF. Then, even though the PDF reaches its maximum at $x=0$, moving from 0 to +1 reveals that the CDF continues to increase. As mentioned already, the CDF is "accumulating" or building up mass via integration. The probability mass continues to increase though at a slower rate because the density is decreasing, especially between +1 and +2. At approximately $x=2.5$, the probability mass essentially saturates. Continuing to integrate over $x$ yields only a small increase in the cumulative probably. Thus, even though the Gaussian random variable exists over the entire real line almost all of the probability mass is contained within the interval of -3 to +3. This statement carries over to a general Gaussian variable in the form of -3$\sigma$ to +3$\sigma$.  
+Let's walk through the figure above. The CDF is calculated by integrating the PDF over the entire range of the `x` variable (known as the **support**). A Gaussian random variable is unbounded, spanning the whole real line. Thus, we must integrate from $-\infty$ to $+\infty$. The PDF shows that for $\left| x\right|>3$ the density is very low. Thus integrating from $-\infty$ up to -3 yields very little "accumulated density" or *mass*. As we continue to move from -3 to -2, the density increases, yielding an increasing slope in the CDF, though it is still rather small. Continuing to from -2 to -1 however, we that the slope of the CDF increases sharply. The slope from -1 to 0 appears roughly constant in the CDF. Moving from 0 to +1 reveals that the CDF continues to increase, even though the PDF reaches its maximum at $x=0$. As mentioned already, the CDF is "accumulating" or building up mass via integration. The probability mass continues to increase at a slower rate than previously because the density is decreasing, especially between +1 and +2. At approximately $x=2.5$, the probability mass essentially saturates. Continuing to integrate over $x$ yields only a small increase in the cumulative probably. Thus, even though the Gaussian random variable exists over the entire real line almost all of the probability mass is contained within the interval of -3 to +3. This statement carries over to a general Gaussian variable in the form of -3$\sigma$ to +3$\sigma$.  
 
 ### Quantiles
 
-Let's calculate various quantiles to quantify the statements we made from visually studying the PDF and CDF. The `qnorm()` function allows us to calculate a quantile based on a desired probability as specified by the `p = ` argument. For example, the median or 50th quantile of the standard normal distribution is:  
+Let's calculate various quantiles to quantify the statements we made from visually studying the PDF and CDF. The `qnorm()` function allows us to calculate a quantile based on a desired probability as specified by the `p = ` argument. For example, the median or 0.5 quantile of the standard normal distribution is:  
 
 ```{r, ex_qnorm_01}
 qnorm(p = 0.5)
@@ -128,39 +128,39 @@ The result is 0 because, as mentioned already the mean, mode, median are the sam
 df_gauss %>% 
   mutate(normal_cdf = pnorm(q = x)) %>% 
   tibble::rowid_to_column() %>% 
-  tidyr::gather(key = "key", value = "value", -rowid, -x) %>% 
+  pivot_longer(starts_with('normal_')) %>% 
   ggplot(mapping = aes(x = x, y = value)) +
-  geom_line(mapping = aes(group = key), size = 1.15) +
-  geom_hline(data = data.frame(prob_val = 0.5, key = c("normal_cdf")),
+  geom_line(mapping = aes(group = name), size = 1.15) +
+  geom_hline(data = data.frame(prob_val = 0.5, name = c("normal_cdf")),
              mapping = aes(yintercept = prob_val),
              color = "red") +
   geom_vline(xintercept = qnorm(0.5), color = "navyblue") +
-  facet_grid(key ~ ., scales = "free_y") +
+  facet_grid(name ~ ., scales = "free_y") +
   scale_x_continuous(breaks = -4:4) +
   theme_bw()
 ```
 
-We can make a similar figure to show the 95th quantile. The horizontal red line on the CDF plot is now placed at the y-axis value of 0.95. Likewise, the vertical blue line is located at `qnorm(0.95)` on the x-axis in both subplots. For the 95th quantile, we integrate from $-\infty$ to `r signif(qnorm(0.95), 4)`.  
+We can make a similar figure to show the 0.95 quantile. The horizontal red line on the CDF plot is now placed at the y-axis value of 0.95. Likewise, the vertical blue line is located at `qnorm(0.95)` on the x-axis in both subplots. For the 95th quantile, we integrate from $-\infty$ to `r signif(qnorm(0.95), 4)`.  
 
 ```{r, ex_qnorm_03}
 df_gauss %>% 
   mutate(normal_cdf = pnorm(q = x)) %>% 
   tibble::rowid_to_column() %>% 
-  tidyr::gather(key = "key", value = "value", -rowid, -x) %>% 
+  pivot_longer(starts_with('normal_')) %>% 
   ggplot(mapping = aes(x = x, y = value)) +
-  geom_line(mapping = aes(group = key), size = 1.15) +
-  geom_hline(data = data.frame(prob_val = 0.95, key = c("normal_cdf")),
+  geom_line(mapping = aes(group = name), size = 1.15) +
+  geom_hline(data = data.frame(prob_val = 0.95, name = c("normal_cdf")),
              mapping = aes(yintercept = prob_val),
              color = "red") +
   geom_vline(xintercept = qnorm(0.95), color = "navyblue") +
-  facet_grid(key ~ ., scales = "free_y") +
+  facet_grid(name ~ ., scales = "free_y") +
   scale_x_continuous(breaks = -4:4) +
   theme_bw()
 ```
 
 ### Intervals
 
-You have probably heard of the "2-sigma" rule, in that approximately 95% of the probability is contained between $-2\sigma$ and $+2\sigma$. Notice that in the previous figure, the 95th quantile is not located at 2...it is located at `r signif(qnorm(0.95, 4))`. That is because the 95th quantile is calculated by integrating starting from $-\infty$. The "2-sigma" rule however, defines an interval **around** the mean. The left hand side of the integral used to calculate the probability starts at the 2.5th quantile and the integration ends at the 97.5th quantile. The interval therefore spans 95% of the probabilty. We could use a different interval which captures 95% of the probability mass. For example, the 1th quantile to the 96th quantile would also cover 95% of the probability mass. Spanning the 2.5th through 97.5th quantiles though encompasses a central interval, with the median/mean/mode at its center. The central 95% interval therefore represents the uncertainty around the most likely value.  
+You have probably heard of the "2-sigma" rule which states approximately 95% of the probability is contained between $-2\sigma$ and $+2\sigma$. Notice that in the previous figure, the 0.95 quantile is not located at 2...it is located at `r signif(qnorm(0.95, 4))`. That is because the 0.95 quantile is calculated by integrating starting from $-\infty$. The "2-sigma" rule however, defines an interval **centered around** the mean. The left hand side of the integral used to calculate the probability starts at the 0.025 quantile and the integration ends at the 0.975 quantile. The interval therefore spans 95% of the probability. We could use a different interval which captures 95% of the probability mass. For example, the 0.01 quantile to the 0.96 quantile would also cover 95% of the probability mass. Spanning the 0.025 through 0.975 quantiles though encompasses a central interval, with the median/mean/mode at its center. The central 95% interval therefore represents the uncertainty around the most likely value.  
 
 Let's first calculate the probability mass contained between -2 and +2 (for the standard normal). We already know that the CDF is evaluated by the `pnorm()` function, but since the left hand side starts at $`-\infty$, we need to setup the calculation slightly different. We need to integrate from $-\infty$ to +2, and then subtract out the integral from $-\infty$ to -2. We can perform the calculation quite simply in `R`, as shown in the code chunk below:  
 
@@ -168,13 +168,13 @@ Let's first calculate the probability mass contained between -2 and +2 (for the 
 pnorm(2) - pnorm(-2)
 ```
 
-The result `r signif(pnorm(2) - pnorm(-2), 4)` is pretty close to 95%. This shows that the "2-sigma" is an approximation, a pretty good approximation, but still an approximation. The actual 2.5th and 97.5th quantile values are:  
+The result `r signif(pnorm(2) - pnorm(-2), 4)` is pretty close to 95%. This shows that the "2-sigma" is an approximation, a pretty good approximation, but still an approximation. The actual 0.025 and 0.975 quantile values are:  
 
 ```{r, ex_qnorm_04}
 qnorm(p = c(0.025, 0.975))
 ```
 
-If we plug in the actual quantiles to the integral calucation, we obtain 95% exactly:  
+If we plug in the actual quantiles to the integral calculation, we obtain 95% exactly:  
 
 ```{r, ex_pnorm_03}
 pnorm(qnorm(0.975)) - pnorm(qnorm(0.025))
@@ -186,25 +186,26 @@ To visualize the relationship between the integral of the PDF to the central 95%
 df_gauss %>% 
   mutate(normal_cdf = pnorm(q = x)) %>% 
   tibble::rowid_to_column() %>% 
-  tidyr::gather(key = "key", value = "value", -rowid, -x) %>% 
-  mutate(show_area = ifelse(key == "normal_cdf", 
+  pivot_longer(starts_with('normal_')) %>% 
+  mutate(show_area = ifelse(name == "normal_cdf", 
                             NA,
                             between(x, qnorm(0.025), qnorm(0.975)))) %>% 
   ggplot(mapping = aes(x = x, y = value)) +
   geom_area(mapping = aes(fill = show_area)) +
-  geom_line(mapping = aes(group = key), size = 1.15) +
-  geom_hline(data = data.frame(prob_val = c(0.025, 0.975), key = c("normal_cdf")),
+  geom_line(mapping = aes(group = name), size = 1.15) +
+  geom_hline(data = data.frame(prob_val = c(0.025, 0.975), name = c("normal_cdf")),
              mapping = aes(yintercept = prob_val),
              color = "red") +
   geom_vline(xintercept = qnorm(c(0.025, 0.975)), color = "navyblue") +
-  facet_grid(key ~ ., scales = "free_y") +
+  facet_grid(name ~ ., scales = "free_y") +
   scale_fill_manual("Area under the density curve for probability interval",
                     values = c("TRUE" = "red",
                                "FALSE" = "grey",
                                "NA" = NA),
                     labels = c("TRUE" = "included in integral",
                                "FALSE" = "outside integral",
-                               "NA" = NA)) +
+                               "NA" = NA),
+                    na.value = NA) +
   scale_x_continuous(breaks = -4:4) +
   theme_bw() +
   theme(legend.position = "top")
@@ -212,11 +213,11 @@ df_gauss %>%
 
 ## Beta distribution
 
-Many of the concepts described for the Gaussian can be carried over to other distributions. Especially how to intepret the CDF and relate the PDF to the CDF through integration. We will now apply those understandings to the Beta distribution.  
+Many of the concepts described for the Gaussian can be carried over to other distributions. Especially how to interpret the CDF and relate the PDF to the CDF through integration. We will now apply those understandings to the Beta distribution.  
 
-The Beta distribution is a continuous distribution, but unlike the Gaussian it is bounded between 0 and 1. Also, the Beta distribution can take on a wide variety of shapes based upon it's hyperparameters. The Bishop book denotes these hyperparameters as $a$ and $b$, but in `R` they are referred to as `shape1` and `shape2`, respectively.  
+The Beta distribution is a continuous distribution, but unlike the Gaussian it is bounded between 0 and 1. Also, the Beta distribution can take a wide variety of shapes based upon its hyperparameters. The Bishop book denotes these hyperparameters as $a$ and $b$, but in `R` they are referred to as `shape1` and `shape2`, respectively.  
 
-In lecture we used the the Beta distribution as the prior on the probability of the event, $\mu$. Within this markdown we will denote that variable simply as `x`. Doing so allows us to be consistent with the input arguments to the `*beta` family of functions. This document therefore represents a more general notation consistent with many references discussing probability distributions. The Beta density function on the variable $x$ given the hyperparameters $a$ and $b$ is proportional to:  
+As you will see in lecture, the Beta distribution can be used as the prior distribution for an unknown event probability, $\mu$. Within this markdown we will denote that variable simply as `x`. Doing so allows us to be consistent with the input arguments to the `*beta` family of functions. This document therefore represents a more general notation consistent with many references discussing probability distributions. The Beta density function on the variable $x$ given the hyperparameters $a$ and $b$ is proportional to:  
 
 $$ 
 p\left( x|a,b \right) \propto x^{a-1}\left( 1 - x\right)^{b-1}
@@ -224,11 +225,11 @@ $$
 
 ### R functions
 
-The `*beta()` family of functions are `dbeta()`, `pbeta()`, `qbeta()`, and `rbeta()`. The `rbeta()` is the random number generation function for beta distribution values bounded between 0 and 1. Compared with the `*norm()` family of functions, the hyperparameters, `shape1` and `shape2` do not have default argument values. The user must supply the hyperparameters for the functions to execute.  
+The `*beta()` family of functions are `dbeta()`, `pbeta()`, `qbeta()`, and `rbeta()`. The `rbeta()` is the random number generation function for beta distribution values bounded between 0 and 1. Compared with the `*norm()` family of functions, the hyperparameters, `shape1` and `shape2` do not have default argument values. The user **must** supply the hyperparameters for the functions to execute.  
 
 ### Visualize
 
-Let's start out evaluating the density function `dbeta()` using the $a$ and $b$ hyperparameters set to 2 and 3, respectively. Given what we learned about how to interpret these hyperparameters, we can expect to see a mean value of `r 2/(2+3)` since the expected value of the Beta distribution is:  
+Let's start out evaluating the density function `dbeta()` using the $a$ and $b$ hyperparameters set to 2 and 3, respectively. We will discuss how to interpret these hyperparameters in lecture. The mean for this Beta is `r 2/(2+3)` since the expected value of the Beta distribution has the following formula:  
 
 $$
 \mathbb{E}\left[x|a,b\right] = \frac{a}{a+b}
@@ -389,18 +390,17 @@ beta_integrate <- purrr::map2_dfr(hyper_params$a,
                                 vector_length = 201)
 ```
 
-We need to merge or join the `beta_results` and `beta_integrate` datasets in order to plot the Beta density functions and CDFs as subplots of a single graphic. Although we have not walked through joining datasets before, the operation is straightforward to do in this case. We will use the `left_join()` function from `dplyr` and instruct the function to join `by`: `x`, `a`, and `b`. The merged dataset is then piped into the `tidyr::gather()` function to reshape it into the correct format. Finally the pivoted dataset is piped into `ggplot()` to give the CDF on the top row of subplots, and the density functions on the bottom row.  
+We need to merge or join the `beta_results` and `beta_integrate` datasets in order to plot the Beta density functions and CDFs as subplots of a single graphic. Although we have not walked through joining datasets before, the operation is straightforward to do in this case. We will use the `left_join()` function from `dplyr` and instruct the function to join `by`: `x`, `a`, and `b`. The merged dataset is then reshaped to long-format using `pivot_longer()`. Finally the reshaped dataset is passed into `ggplot()` to give the CDF on the top row of subplots, and the density functions on the bottom row.  
 
 ```{r, ex_dbeta_10}
 beta_results %>% 
   left_join(beta_integrate,
             by = c("x", "a", "b")) %>% 
-  tidyr::gather(key = "key", value = "value", 
-                -x, -a, -b) %>% 
+  pivot_longer(starts_with('beta_')) %>% 
   ggplot(mapping = aes(x = x, y = value)) +
-  geom_line(mapping = aes(group = interaction(key, a, b)),
+  geom_line(mapping = aes(group = interaction(name, a, b)),
             size = 1.15) +
-  facet_grid(key ~ a + b,
+  facet_grid(name ~ a + b,
              labeller = "label_both",
              scales = "free_y") +
   theme_bw()
